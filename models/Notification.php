@@ -42,7 +42,7 @@ class Notification extends \yii\db\ActiveRecord
             [['message'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['type'], 'string', 'max' => 50],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::class, 'targetAttribute' => ['user_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 
@@ -69,7 +69,7 @@ class Notification extends \yii\db\ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(Users::class, ['id' => 'user_id']);
+        return $this->hasOne(\app\models\User::class, ['id' => 'user_id']);
     }
 
 }

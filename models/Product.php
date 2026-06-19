@@ -1,9 +1,10 @@
 <?php
-
 namespace app\models;
-
 use Yii;
-
+use yii\db\ActiveRecord;
+use app\models\Category;
+use app\models\Cart;
+use app\models\OrderItems;
 /**
  * This is the model class for table "products".
  *
@@ -22,90 +23,70 @@ use Yii;
  * @property int $updated_at
  *
  * @property Cart[] $carts
- * @property Categories $category
+ * @property Category $category
  * @property OrderItems[] $orderItems
  */
-class Product extends \yii\db\ActiveRecord
+class Product extends ActiveRecord
 {
-
-
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName()
     {
         return 'products';
     }
-
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
             [['description', 'manufacturer', 'dosage_form', 'image'], 'default', 'value' => null],
             [['stock_qty'], 'default', 'value' => 0],
+            [['moq'], 'default', 'value' => 1],
             [['status'], 'default', 'value' => 1],
-            [['category_id', 'name', 'price', 'created_at', 'updated_at'], 'required'],
-            [['category_id', 'stock_qty', 'moq', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['category_id', 'name', 'price'], 'required'],
+            [['category_id', 'stock_qty', 'moq', 'status'], 'integer'],
             [['description'], 'string'],
             [['price'], 'number'],
             [['name', 'image'], 'string', 'max' => 255],
             [['manufacturer', 'dosage_form'], 'string', 'max' => 100],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Categories::class, 'targetAttribute' => ['category_id' => 'id']],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
-
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'category_id' => 'Category ID',
-            'name' => 'Name',
-            'description' => 'Description',
-            'price' => 'Price',
-            'stock_qty' => 'Stock Qty',
-            'moq' => 'Moq',
+            'id'           => 'ID',
+            'category_id'  => 'Category',
+            'name'         => 'Product Name',
+            'description'  => 'Description',
+            'price'        => 'Price (TZS)',
+            'stock_qty'    => 'Stock Quantity',
+            'moq'          => 'Minimum Order Quantity',
             'manufacturer' => 'Manufacturer',
-            'dosage_form' => 'Dosage Form',
-            'image' => 'Image',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'dosage_form'  => 'Dosage Form',
+            'image'        => 'Image',
+            'status'       => 'Status',
+            'created_at'   => 'Created At',
+            'updated_at'   => 'Updated At',
         ];
     }
-
-    /**
-     * Gets query for [[Carts]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($insert) {
+                $this->created_at = time();
+            }
+            $this->updated_at = time();
+            return true;
+        }
+        return false;
+    }
     public function getCarts()
     {
         return $this->hasMany(Cart::class, ['product_id' => 'id']);
     }
-
-    /**
-     * Gets query for [[Category]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
     public function getCategory()
     {
-        return $this->hasOne(Categories::class, ['id' => 'category_id']);
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
-
-    /**
-     * Gets query for [[OrderItems]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
     public function getOrderItems()
     {
         return $this->hasMany(OrderItems::class, ['product_id' => 'id']);
     }
-
 }

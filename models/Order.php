@@ -44,7 +44,7 @@ class Order extends \yii\db\ActiveRecord
             [['total_amount'], 'number'],
             [['delivery_address', 'notes'], 'string'],
             [['status'], 'string', 'max' => 20],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::class, 'targetAttribute' => ['user_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \app\models\User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 
@@ -82,7 +82,7 @@ class Order extends \yii\db\ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(Users::class, ['id' => 'user_id']);
+        return $this->hasOne(\app\models\User::class, ['id' => 'user_id']);
     }
 
 }

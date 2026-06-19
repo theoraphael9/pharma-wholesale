@@ -76,10 +76,13 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionIndex(): string
-    {
-        return $this->render('index');
+    public function actionIndex(): string|Response
+{
+    if (!Yii::$app->user->isGuest && Yii::$app->user->identity->role === 'admin') {
+        return $this->redirect(['/admin/index']);
     }
+    return $this->render('index');
+}
 
     /**
      * Login action.
@@ -92,7 +95,8 @@ class SiteController extends Controller
             return $this->goHome();
         }
 
-        $model = new LoginForm($this->security);
+        #$model = new LoginForm($this->security);
+        $model = new LoginForm();
 
         if ($model->load($this->request->post()) && $model->login()) {
             return $this->goBack();
@@ -102,6 +106,21 @@ class SiteController extends Controller
 
         return $this->render('login', ['model' => $model]);
     }
+    public function actionSignup(): Response|string
+{
+    $model = new \app\models\SignupForm();
+
+    if ($model->load(Yii::$app->request->post())) {
+        $user = $model->signup();
+        if ($user) {
+            Yii::$app->user->login($user);
+            Yii::$app->session->setFlash('success', 'Registration successful! Welcome to PharmaWholesale.');
+            return $this->goHome();
+        }
+    }
+
+    return $this->render('signup', ['model' => $model]);
+}
 
     /**
      * Logout action.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 /** @var yii\web\View $this */
 
+
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
 use yii\helpers\Html;
@@ -13,6 +14,12 @@ $items = [
         'label' => '🏠 Dashboard',
         'url' => ['/site/index'],
     ],
+    [
+    'label' => '🛡️ Admin Panel',
+    'url' => ['/admin/index'],
+    'visible' => !Yii::$app->user->isGuest 
+                 && Yii::$app->user->identity->role === 'admin',
+],
     [
         'label' => '💊 Catalogue',
         'items' => [
@@ -38,6 +45,11 @@ $items = [
         'label' => '🔔 Notifications',
         'url' => ['/notification/index'],
     ],
+    [
+    'label' => 'Register',
+    'url' => ['/site/signup'],
+    'visible' => Yii::$app->user->isGuest,
+],
     [
         'label' => 'Login',
         'url' => ['/site/login'],
